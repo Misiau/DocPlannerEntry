@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace DocPlannerEntry.SlotManagement.Model;
+namespace DocPlannerEntry.SlotManagement.Model.Availability;
 
-public class BusySlot
+public class Slot
 {
     [JsonPropertyName("Start")]
     public DateTime Start { get; set; }

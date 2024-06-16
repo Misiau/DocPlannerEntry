@@ -6,4 +6,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="IdentityModel" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DocPlannerEntry.Shared\DocPlannerEntry.Shared.csproj" />
+    <ProjectReference Include="..\DocPlannerEntry.SlotManagement.Model\DocPlannerEntry.SlotManagement.Model.csproj" />
+  </ItemGroup>
+
 </Project>

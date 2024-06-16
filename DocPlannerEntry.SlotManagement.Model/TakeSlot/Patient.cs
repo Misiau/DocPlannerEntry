@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace DocPlannerEntry.SlotManagement.Model;
+namespace DocPlannerEntry.SlotManagement.Model.TakeSlot;
 
 public class Patient
 {

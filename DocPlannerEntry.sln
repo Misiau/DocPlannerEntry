@@ -3,17 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35004.147
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocPlannerEntry.API", "DocPlannerEntry\DocPlannerEntry.API.csproj", "{19580C30-E381-44C0-9759-7BEE389F4AB7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocPlannerEntry.Tests", "DocPlannerEntry.Tests\DocPlannerEntry.Tests.csproj", "{F4277D1A-7AF2-4E13-BB8B-65AF821EB72A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocPlannerEntry.Tests", "DocPlannerEntry.Tests\DocPlannerEntry.Tests.csproj", "{F4277D1A-7AF2-4E13-BB8B-65AF821EB72A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocPlannerEntry.SlotManagement.Model", "DocPlannerEntry.SlotManagement.Model\DocPlannerEntry.SlotManagement.Model.csproj", "{0DFCB997-FA5D-42A2-9DF4-CD238DC22C4E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocPlannerEntry.Model", "DocPlannerEntry.Model\DocPlannerEntry.Model.csproj", "{3D518E1C-1045-46C6-B6E4-33E19FE7600C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocPlannerEntry.SlotManagement.Model", "DocPlannerEntry.SlotManagement.Model\DocPlannerEntry.SlotManagement.Model.csproj", "{0DFCB997-FA5D-42A2-9DF4-CD238DC22C4E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocPlannerEntry.SlotManagement.Service", "DocPlannerEntry.SlotManagement.Service\DocPlannerEntry.SlotManagement.Service.csproj", "{B3306AF8-3514-41CB-B86B-18FE536B06E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocPlannerEntry.SlotManagement.Service", "DocPlannerEntry.SlotManagement.Service\DocPlannerEntry.SlotManagement.Service.csproj", "{B3306AF8-3514-41CB-B86B-18FE536B06E6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SlotManagement", "SlotManagement", "{4A93B342-1954-4539-B9EA-E19256EA278B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocPlannerEntry.API", "DocPlannerEntry.API\DocPlannerEntry.API.csproj", "{37AA0970-E951-45E9-8301-787C1E6D3C98}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocPlannerEntry.Shared", "DocPlannerEntry.Shared\DocPlannerEntry.Shared.csproj", "{795F21B8-F4B2-4BA2-A56D-71F355DD3524}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,18 +21,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{19580C30-E381-44C0-9759-7BEE389F4AB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{19580C30-E381-44C0-9759-7BEE389F4AB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{19580C30-E381-44C0-9759-7BEE389F4AB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{19580C30-E381-44C0-9759-7BEE389F4AB7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F4277D1A-7AF2-4E13-BB8B-65AF821EB72A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F4277D1A-7AF2-4E13-BB8B-65AF821EB72A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4277D1A-7AF2-4E13-BB8B-65AF821EB72A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4277D1A-7AF2-4E13-BB8B-65AF821EB72A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3D518E1C-1045-46C6-B6E4-33E19FE7600C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3D518E1C-1045-46C6-B6E4-33E19FE7600C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3D518E1C-1045-46C6-B6E4-33E19FE7600C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3D518E1C-1045-46C6-B6E4-33E19FE7600C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0DFCB997-FA5D-42A2-9DF4-CD238DC22C4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0DFCB997-FA5D-42A2-9DF4-CD238DC22C4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0DFCB997-FA5D-42A2-9DF4-CD238DC22C4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -41,6 +33,14 @@ Global
 		{B3306AF8-3514-41CB-B86B-18FE536B06E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3306AF8-3514-41CB-B86B-18FE536B06E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3306AF8-3514-41CB-B86B-18FE536B06E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37AA0970-E951-45E9-8301-787C1E6D3C98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37AA0970-E951-45E9-8301-787C1E6D3C98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37AA0970-E951-45E9-8301-787C1E6D3C98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37AA0970-E951-45E9-8301-787C1E6D3C98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{795F21B8-F4B2-4BA2-A56D-71F355DD3524}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{795F21B8-F4B2-4BA2-A56D-71F355DD3524}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{795F21B8-F4B2-4BA2-A56D-71F355DD3524}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{795F21B8-F4B2-4BA2-A56D-71F355DD3524}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
