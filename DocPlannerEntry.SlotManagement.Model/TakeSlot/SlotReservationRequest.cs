@@ -2,8 +2,11 @@
 
 namespace DocPlannerEntry.SlotManagement.Model.TakeSlot;
 
-internal class SlotReservationRequest
+public class SlotReservationRequest
 {
+    [JsonPropertyName("FacilityId")]
+    public Guid FacilityId { get; set; }
+
     [JsonPropertyName("Start")]
     public DateTimeOffset Start { get; set; }
 

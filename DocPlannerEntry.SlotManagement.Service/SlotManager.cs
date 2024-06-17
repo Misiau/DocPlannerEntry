@@ -1,5 +1,6 @@
 ﻿using DocPlannerEntry.Shared;
 using DocPlannerEntry.SlotManagement.Model.Availability;
+using DocPlannerEntry.SlotManagement.Model.TakeSlot;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -22,8 +23,15 @@ public class SlotManager : ISlotManager
         _logger = logger;
     }
 
-    public async Task<bool> TakeSlot(string startHour)
+    public async Task<(bool, string)> TakeSlot(DateTimeOffset startDate, DateTimeOffset endDate)
     {
+        if (startDate > endDate)
+            return (false, "Slot has to start before ending");
+
+        //Might be worth checking, considering as an overkill for the purpose of this task
+        //if (startDate.AddMinutes(slotDuration) != endDate)
+        //    return (false, "Slot duration misaligned with start/date");
+
         var httpClient = _httpClientFactory.CreateClient();
 
         var sb = new StringBuilder();
@@ -31,9 +39,24 @@ public class SlotManager : ISlotManager
         sb.Append(_settings.BaseUrl);
         sb.Append(_settings.TakeSlotUrl);
 
+        var slotReservationRequest = new SlotReservationRequest()
+        {
+            FacilityId = new Guid("90c9f71c-685f-48e7-a6d5-7898775209ce"),
+            Start = startDate,
+            End = endDate,
+            Comments = "Awesome Patient incoming",
+            Patient = new Patient()
+            {
+                Email = "testPatient@gmail.com",
+                Name = "John",
+                SecondName = "Connor",
+                Phone = "000111222"
+            }
+        };
+
         var request = new HttpRequestMessage(HttpMethod.Post, sb.ToString())
         {
-            Content = new StringContent(sb.ToString())
+            Content = new StringContent(JsonSerializer.Serialize(slotReservationRequest), Encoding.UTF8, "application/json")
         };
 
         request.Headers.Authorization = new BasicAuthenticationHeaderValue(_settings.UserName, _settings.Password);
@@ -43,24 +66,41 @@ public class SlotManager : ISlotManager
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError("Slot reservation API returned {0}", response.StatusCode);
-            return false;
+            _logger.LogDebug("Slot reservation API returned {0}. Original response: {1}", response.StatusCode, responseBody);
+            return (false, $"Slot reservation API returned {response.StatusCode}. Original response: {responseBody}");
         }
 
-        return true;
+        return (true, "Slot has been reserved successfully");
     }
 
-    public async Task<IEnumerable<Slot>> CalculateAvailableSlots(Dictionary<string, DayInfo> weeklySchedule, DateTime referenceDate, int slotDuration)
+    public async Task<IEnumerable<Slot>> GetAvailableSlots(DateTimeOffset? requestedDate = null)
     {
-        //This should be moved as a separate service
+        var targetDate = requestedDate ?? DateTimeOffset.Now;
 
+        var availability = await RetrieveAvailabilityAsync(targetDate);
+
+        if (availability is null)
+        {
+            _logger.LogError("Response from third party API was not successful");
+            return Enumerable.Empty<Slot>();
+        }
+
+        var possibleSlots = CalculateAvailableSlots(availability.Days, targetDate.Date, availability.SlotDurationMinutes).ToList();
+        var busySlots = availability.Days.SelectMany(x => x.Value.BusySlots).ToList();
+
+        var availableSlots = possibleSlots.Except(busySlots, new SlotEqualityComparer()).ToList();
+
+        return availableSlots;
+    }
+
+    private IEnumerable<Slot> CalculateAvailableSlots(Dictionary<string, DayInfo> weeklySchedule, DateTime referenceDate, int slotDuration)
+    {
         var slots = new List<Slot>();
 
         foreach (var day in weeklySchedule.Values)
         {
             var workPeriod = day.WorkPeriod;
 
-            //Is that approach efficient?
             //StartHour - LunchStartHour
             for (DateTime appointment = referenceDate.AddHours(workPeriod.StartHour); appointment < referenceDate.AddHours(workPeriod.LunchStartHour); appointment = appointment.AddMinutes(slotDuration))
                 slots.Add(new Slot() { Start = appointment, End = appointment.AddMinutes(slotDuration) });
@@ -72,16 +112,13 @@ public class SlotManager : ISlotManager
             referenceDate = referenceDate.AddDays(1);
         }
 
-        throw new NotImplementedException();
+        return slots;
     }
 
-    public async Task<AvailabilityResponse> RetrieveAvailabilityAsync(DateTime? requestedDate = null)
+    private async Task<AvailabilityResponse> RetrieveAvailabilityAsync(DateTimeOffset requestedDate)
     {
-        //Will most likely cause some issues over time zones, look into this later to convert into DateTimeOffset
-        var targetDate = requestedDate ?? DateTime.Now;
-
         //This behaves accordingly to week starting from Sunday, which some parts of the world consider as last day of week, other the first one. For sake of reduced complexity, Sunday is taken here as first.
-        var mondayDate = targetDate.AddDays(-(int)DateTime.Today.DayOfWeek + (int)DayOfWeek.Monday);
+        var mondayDate = requestedDate.AddDays(-(int)DateTime.Today.DayOfWeek + (int)DayOfWeek.Monday);
 
         var httpClient = _httpClientFactory.CreateClient();
 
@@ -96,12 +133,24 @@ public class SlotManager : ISlotManager
 
         var response = await httpClient.SendAsync(request);
         var responseBody = await response.Content.ReadAsStringAsync();
-        var availability = JsonSerializer.Deserialize<AvailabilityResponse>(responseBody);
+
+        if (!response.IsSuccessStatusCode || string.IsNullOrEmpty(responseBody))
+            return null;
+
+        AvailabilityResponse availability = null;
+
+        try
+        {
+            availability = JsonSerializer.Deserialize<AvailabilityResponse>(responseBody);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Could not deserialize type: {0}, exception: {1}", typeof(AvailabilityResponse), ex);
+            return null;
+        }
 
         foreach (KeyValuePair<string, JsonElement> kvp in availability.Unserialized)
             availability.Days.Add(kvp.Key, JsonSerializer.Deserialize<DayInfo>(kvp.Value));
-
-        await CalculateAvailableSlots(availability.Days, DateTime.Today, 10);
 
         return availability;
     }

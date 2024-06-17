@@ -6,7 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace DocPlannerEntry.API.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
+
+/// <summary>
+/// The main controller exposed for front-end to get available ones and reserve them
+/// </summary>
 public class SlotManagementController : ControllerBase
 {
     private readonly ILogger<SlotManagementController> _logger;
@@ -18,11 +22,56 @@ public class SlotManagementController : ControllerBase
         _slotManager = slotManager;
     }
 
+    /// <summary>
+    /// Method used to retrieve all currently available slots for whole week
+    /// </summary>
+    /// <param name="requestedDate">Date to pull weekly availability (Sunday being the first day of the week)</param>
+    /// <returns>Returns all available slots for that week</returns>
+    /// <response code="200">Returns all available slots for that week</response>
     [HttpGet(Name = "GetAvailability")]
-    public async Task<IEnumerable<Slot>> Get()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<Slot>>> GetAvailableSlots(DateTimeOffset? requestedDate = null)
     {
-        var result = await _slotManager.RetrieveAvailabilityAsync(DateTime.Now);
+        IEnumerable<Slot> availableSlots = Enumerable.Empty<Slot>();
 
-        throw new NotImplementedException();
+        try
+        {
+            availableSlots = await _slotManager.GetAvailableSlots(requestedDate);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Could not retrieve available slots due to {0}", ex);
+        }
+
+        return Ok(availableSlots);
+    }
+
+    /// <summary>
+    /// Method used to reserve a set slot
+    /// </summary>
+    /// <param name="startDate">Date of slot starting time point</param>
+    /// <param name="endDate">Date of slot ending time point</param>
+    /// <returns>Response if slot reservation was successful with errors describing the reason if not</returns>
+    /// <response code="200">Slot has been reserved successfully</response>
+    /// <response code="400">Slot could not be reserved due to a reason said in response</response>
+    [HttpPost(Name = "TakeSlot")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<(bool, string)>> TakeSlot(DateTimeOffset startDate, DateTimeOffset endDate)
+    {
+        (bool, string) result;
+
+        try
+        {
+            result = await _slotManager.TakeSlot(startDate, endDate);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Slot could not be reserved due to {0}", ex);
+
+            return BadRequest($"Slot could not be reserved {ex}");
+        }
+
+        return Ok(result.Item2);
     }
 }
