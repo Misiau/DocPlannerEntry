@@ -46,12 +46,18 @@ After setting up these values, one must run the DocPlannerEntry.API project, the
 
 ## Structure
 
-DocPlannerEntry.API <i> (API folder, main starting point for running the app) </i>
-DocPlannerEntry.Shared <i> (all of the files that should be carried throughout different subprojs) </i>
-DocPlannerEntry.Tests
-DocPlannerEntry.SlotManagement.Model <i> (contains models related to SlotManagementService) </i>
-DocPlannerEntry.SlotManagement.Service <i> (contains service definition to integrate with third-party API) </i>
-DocPlannerEntry.SlotManagement.UI <i> (contains WPF project that allows to go through GUI, without looking at Swagger) </i>
+DocPlannerEntry.API <i> (API folder, main starting point for running the app) </i>  
+
+DocPlannerEntry.Shared <i> (all of the files that should be carried throughout different subprojs) </i>  
+
+DocPlannerEntry.Tests  
+
+DocPlannerEntry.SlotManagement.Model <i> (contains models related to SlotManagementService) </i>  
+
+DocPlannerEntry.SlotManagement.Service <i> (contains service definition to integrate with third-party API) </i>  
+
+DocPlannerEntry.SlotManagement.UI <i> (contains WPF project that allows to go through GUI, without looking at Swagger) </i>  
+
 
 ## UI
 
