@@ -29,7 +29,6 @@ In order to actually run the solution, there has to be a configuration set at fo
 
 SlotService is the paragraph that is essential to running this application. Additionally, there are 2 extra parameters that need to be set, that would be (you can as well just paste the whole SlotService section into secrets, to ensure that all of the values had been loaded from same point): 
 
-After setting up these values, one must run the DocPlannerEntry.API project, then start up the DocPlannerEntry.UI if necessary
 
 <b>secrets.json </b> (in DocPlannerEntry.API subproject)
 ```
@@ -43,6 +42,11 @@ After setting up these values, one must run the DocPlannerEntry.API project, the
   }
 }
 ```
+
+After setting up these values, one must run the DocPlannerEntry.API project, then start up the DocPlannerEntry.UI if necessary
+
+>By default, the UI has been wired up to HTTP API profile
+
 
 ## Structure
 
