@@ -51,8 +51,18 @@ public partial class MainWindow : Window
             Content = new StringContent(JsonSerializer.Serialize(slotReservationRequest), Encoding.UTF8, "application/json")
         };
 
-        var response = await httpClient.SendAsync(httpRequest);
-        var responseBody = await response.Content.ReadAsStringAsync();
+        HttpResponseMessage? response = null;
+
+        try
+        {
+            response = await httpClient.SendAsync(httpRequest);
+            var responseBody = await response.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("The application could not contact local API.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
 
         if (response.IsSuccessStatusCode)
             MessageBox.Show("Slot reserved successfully", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -68,8 +78,19 @@ public partial class MainWindow : Window
 
         var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/SlotManagement?requestedDate={LoadDatePicker.ToString()}");
 
-        var response = await httpClient.SendAsync(httpRequest);
-        var responseBody = await response.Content.ReadAsStringAsync();
+        HttpResponseMessage? response = null;
+        string responseBody = string.Empty;
+
+        try
+        {
+            response = await httpClient.SendAsync(httpRequest);
+            responseBody = await response.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("The application could not contact local API.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
         var deserializedSlots = JsonSerializer.Deserialize<List<Slot>>(responseBody);
 
         slotUIs.AddRange(deserializedSlots);
