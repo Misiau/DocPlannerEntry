@@ -11,9 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocPlannerEntry.SlotManagem
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SlotManagement", "SlotManagement", "{4A93B342-1954-4539-B9EA-E19256EA278B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocPlannerEntry.API", "DocPlannerEntry.API\DocPlannerEntry.API.csproj", "{37AA0970-E951-45E9-8301-787C1E6D3C98}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocPlannerEntry.API", "DocPlannerEntry.API\DocPlannerEntry.API.csproj", "{37AA0970-E951-45E9-8301-787C1E6D3C98}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocPlannerEntry.Shared", "DocPlannerEntry.Shared\DocPlannerEntry.Shared.csproj", "{795F21B8-F4B2-4BA2-A56D-71F355DD3524}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocPlannerEntry.Shared", "DocPlannerEntry.Shared\DocPlannerEntry.Shared.csproj", "{795F21B8-F4B2-4BA2-A56D-71F355DD3524}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocPlannerEntry.UI", "DocPlannerEntry.UI\DocPlannerEntry.UI.csproj", "{A5CECC01-C701-4D13-AA89-3234A74E438A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,10 @@ Global
 		{795F21B8-F4B2-4BA2-A56D-71F355DD3524}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{795F21B8-F4B2-4BA2-A56D-71F355DD3524}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{795F21B8-F4B2-4BA2-A56D-71F355DD3524}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5CECC01-C701-4D13-AA89-3234A74E438A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5CECC01-C701-4D13-AA89-3234A74E438A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5CECC01-C701-4D13-AA89-3234A74E438A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5CECC01-C701-4D13-AA89-3234A74E438A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

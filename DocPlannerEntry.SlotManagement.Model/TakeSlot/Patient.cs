@@ -1,4 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿using FluentValidation;
+
+using System.Text.Json.Serialization;
 
 namespace DocPlannerEntry.SlotManagement.Model.TakeSlot;
 
@@ -15,5 +17,16 @@ public class Patient
 
     [JsonPropertyName("Phone")]
     public string Phone { get; set; }
+}
+
+public class PatientValidator : AbstractValidator<Patient>
+{
+    public PatientValidator()
+    {
+        RuleFor(p => p.Name).NotEmpty();
+        RuleFor(p => p.SecondName).NotEmpty();
+        RuleFor(p => p.Email).NotEmpty().EmailAddress();
+        RuleFor(p => p.Phone).NotEmpty();
+    }
 }
 

@@ -23,10 +23,20 @@ public class SlotManager : ISlotManager
         _logger = logger;
     }
 
-    public async Task<(bool, string)> TakeSlot(DateTimeOffset startDate, DateTimeOffset endDate)
+    public async Task<(bool, string)> TakeSlot(Guid facilityId, DateTimeOffset startDate, DateTimeOffset endDate, string comments, Patient patientData)
     {
         if (startDate > endDate)
             return (false, "Slot has to start before ending");
+
+        if (patientData is null)
+            return (false, "Patient data cannot be empty");
+
+        var patientValidator = new PatientValidator();
+
+        var validationResult = await patientValidator.ValidateAsync(patientData);
+
+        if (!validationResult.IsValid)
+            return (false, string.Join(",", validationResult.Errors.Select(x => x.ErrorMessage)));
 
         //Might be worth checking, considering as an overkill for the purpose of this task
         //if (startDate.AddMinutes(slotDuration) != endDate)
@@ -39,19 +49,14 @@ public class SlotManager : ISlotManager
         sb.Append(_settings.BaseUrl);
         sb.Append(_settings.TakeSlotUrl);
 
+
         var slotReservationRequest = new SlotReservationRequest()
         {
-            FacilityId = new Guid("90c9f71c-685f-48e7-a6d5-7898775209ce"),
+            FacilityId = facilityId,
             Start = startDate,
             End = endDate,
-            Comments = "Awesome Patient incoming",
-            Patient = new Patient()
-            {
-                Email = "testPatient@gmail.com",
-                Name = "John",
-                SecondName = "Connor",
-                Phone = "000111222"
-            }
+            Comments = comments,
+            Patient = patientData
         };
 
         var request = new HttpRequestMessage(HttpMethod.Post, sb.ToString())
@@ -67,7 +72,7 @@ public class SlotManager : ISlotManager
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogDebug("Slot reservation API returned {0}. Original response: {1}", response.StatusCode, responseBody);
-            return (false, $"Slot reservation API returned {response.StatusCode}. Original response: {responseBody}");
+            return (false, $"Slot reservation API returned {response.StatusCode}");
         }
 
         return (true, "Slot has been reserved successfully");
@@ -86,7 +91,7 @@ public class SlotManager : ISlotManager
         }
 
         var possibleSlots = CalculateAvailableSlots(availability.Days, targetDate.Date, availability.SlotDurationMinutes).ToList();
-        var busySlots = availability.Days.SelectMany(x => x.Value.BusySlots).ToList();
+        var busySlots = availability.Days.Where(x => x.Value.BusySlots != null).SelectMany(x => x.Value.BusySlots).ToList();
 
         var availableSlots = possibleSlots.Except(busySlots, new SlotEqualityComparer()).ToList();
 
@@ -99,6 +104,10 @@ public class SlotManager : ISlotManager
 
         foreach (var day in weeklySchedule.Values)
         {
+            //Edge-case due to API bug, which allows for slot reservation on a day that has not been listed before
+            if (day.WorkPeriod is null)
+                continue;
+
             var workPeriod = day.WorkPeriod;
 
             //StartHour - LunchStartHour
@@ -118,7 +127,7 @@ public class SlotManager : ISlotManager
     private async Task<AvailabilityResponse> RetrieveAvailabilityAsync(DateTimeOffset requestedDate)
     {
         //This behaves accordingly to week starting from Sunday, which some parts of the world consider as last day of week, other the first one. For sake of reduced complexity, Sunday is taken here as first.
-        var mondayDate = requestedDate.AddDays(-(int)DateTime.Today.DayOfWeek + (int)DayOfWeek.Monday);
+        var mondayDate = requestedDate.AddDays(-(int)requestedDate.DayOfWeek + (int)DayOfWeek.Monday);
 
         var httpClient = _httpClientFactory.CreateClient();
 
@@ -131,8 +140,22 @@ public class SlotManager : ISlotManager
 
         request.Headers.Authorization = new BasicAuthenticationHeaderValue(_settings.UserName, _settings.Password);
 
-        var response = await httpClient.SendAsync(request);
-        var responseBody = await response.Content.ReadAsStringAsync();
+        try
+        {
+
+            var response = await httpClient.SendAsync(request);
+            var responseBody = await response.Content.ReadAsStringAsync();
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError("Could not deserialize retrieved JSON {0}", ex);
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Error occured during sending payload", ex);
+            return null;
+        }
 
         if (!response.IsSuccessStatusCode || string.IsNullOrEmpty(responseBody))
             return null;

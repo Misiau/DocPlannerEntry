@@ -1,4 +1,5 @@
 ﻿using DocPlannerEntry.SlotManagement.Model.Availability;
+using DocPlannerEntry.SlotManagement.Model.TakeSlot;
 using DocPlannerEntry.SlotManagement.Service;
 
 using Microsoft.AspNetCore.Mvc;
@@ -30,18 +31,26 @@ public class SlotManagementController : ControllerBase
     /// <response code="200">Returns all available slots for that week</response>
     [HttpGet(Name = "GetAvailability")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<Slot>>> GetAvailableSlots(DateTimeOffset? requestedDate = null)
+    public async Task<ActionResult<IEnumerable<Slot>>> GetAvailableSlots(string requestedDate)
     {
+        _logger.LogInformation("Started processing GetAvailableSlots");
+
         IEnumerable<Slot> availableSlots = Enumerable.Empty<Slot>();
+
+        DateTimeOffset dto;
+        if (!DateTimeOffset.TryParse(requestedDate, out dto))
+            dto = DateTimeOffset.Now;
 
         try
         {
-            availableSlots = await _slotManager.GetAvailableSlots(requestedDate);
+            availableSlots = await _slotManager.GetAvailableSlots(dto);
         }
         catch (Exception ex)
         {
             _logger.LogError("Could not retrieve available slots due to {0}", ex);
         }
+
+        _logger.LogInformation("Finished processing GetAvailableSlots");
 
         return Ok(availableSlots);
     }
@@ -57,13 +66,15 @@ public class SlotManagementController : ControllerBase
     [HttpPost(Name = "TakeSlot")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<(bool, string)>> TakeSlot(DateTimeOffset startDate, DateTimeOffset endDate)
+    public async Task<ActionResult<(bool, string)>> TakeSlot(SlotReservationRequest request)
     {
+        _logger.LogInformation("Started processing TakeSlot");
+
         (bool, string) result;
 
         try
         {
-            result = await _slotManager.TakeSlot(startDate, endDate);
+            result = await _slotManager.TakeSlot(request.FacilityId, request.Start, request.End, request.Comments, request.Patient);
         }
         catch (Exception ex)
         {
@@ -71,6 +82,8 @@ public class SlotManagementController : ControllerBase
 
             return BadRequest($"Slot could not be reserved {ex}");
         }
+
+        _logger.LogInformation("Finished processing TakeSlot");
 
         return Ok(result.Item2);
     }
