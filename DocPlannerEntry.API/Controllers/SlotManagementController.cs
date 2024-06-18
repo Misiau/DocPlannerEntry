@@ -31,7 +31,7 @@ public class SlotManagementController : ControllerBase
     /// <response code="200">Returns all available slots for that week</response>
     [HttpGet(Name = "GetAvailability")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<Slot>>> GetAvailableSlots(string requestedDate)
+    public async Task<ActionResult<IEnumerable<Slot>>> GetAvailableSlots(string requestedDate = null)
     {
         _logger.LogInformation("Started processing GetAvailableSlots");
 
@@ -45,9 +45,17 @@ public class SlotManagementController : ControllerBase
         {
             availableSlots = await _slotManager.GetAvailableSlots(dto);
         }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogInformation("Authorization has not been set properly");
+
+            return BadRequest(ex.Message);
+        }
         catch (Exception ex)
         {
             _logger.LogError("Could not retrieve available slots due to {0}", ex);
+
+            return BadRequest("Could not authorize to slot management API");
         }
 
         _logger.LogInformation("Finished processing GetAvailableSlots");
@@ -75,6 +83,12 @@ public class SlotManagementController : ControllerBase
         try
         {
             result = await _slotManager.TakeSlot(request.FacilityId, request.Start, request.End, request.Comments, request.Patient);
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogInformation("Authorization has not been set properly");
+
+            return BadRequest("Could not authorize to slot management API");
         }
         catch (Exception ex)
         {
