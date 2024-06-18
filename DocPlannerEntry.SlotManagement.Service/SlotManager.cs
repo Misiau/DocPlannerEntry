@@ -64,6 +64,9 @@ public class SlotManager : ISlotManager
             Content = new StringContent(JsonSerializer.Serialize(slotReservationRequest), Encoding.UTF8, "application/json")
         };
 
+        if (string.IsNullOrEmpty(_settings.UserName) || string.IsNullOrEmpty(_settings.Password))
+            throw new InvalidOperationException("Username and password has not been set properly");
+
         request.Headers.Authorization = new BasicAuthenticationHeaderValue(_settings.UserName, _settings.Password);
 
         var response = await httpClient.SendAsync(request);
@@ -140,20 +143,18 @@ public class SlotManager : ISlotManager
 
         request.Headers.Authorization = new BasicAuthenticationHeaderValue(_settings.UserName, _settings.Password);
 
+        HttpResponseMessage? response = null;
+        string responseBody = String.Empty;
+
+        //Good practice contains the information that you should not be controlling flow of the method through catch expression, but that would require extra handling (object wrapper with error message propagating up to controller)
         try
         {
-
-            var response = await httpClient.SendAsync(request);
-            var responseBody = await response.Content.ReadAsStringAsync();
-        }
-        catch (JsonException ex)
-        {
-            _logger.LogError("Could not deserialize retrieved JSON {0}", ex);
-            return null;
+            response = await httpClient.SendAsync(request);
+            responseBody = await response.Content.ReadAsStringAsync();
         }
         catch (Exception ex)
         {
-            _logger.LogError("Error occured during sending payload", ex);
+            _logger.LogError("Error occured during sending payload {0}", ex);
             return null;
         }
 
